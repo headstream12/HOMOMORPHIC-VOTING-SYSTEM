@@ -109,24 +109,28 @@ def getAdverts():
     # c.execute('SELECT * FROM advertisements limit ' + str(limit))
     # print(c.fetchone())
 
-    let1 = encrypter.encrypt(1)
-    let2 = encrypter.encrypt(0)
-    a = encrypter.decrypt(let1)
-    b = encrypter.decrypt(let2)
-    sumarnaya = 1
-    for i in range(200000):
-        sumarnaya = (sumarnaya * let1 * let2) % encrypter.N ** 2
-    # print(i)
-    # print(encrypter.decrypt(sumarnaya))
-    res = encrypter.decrypt(sumarnaya)
+    json = {
+        "publicKey": str(encrypter.N),
+        "g": str(encrypter.g)
+    }
 
-    print('let1', let1)
-    print('let2', let2)
-    print(a)
-    print(b)
-    print(res)
+    return jsonify(json)
 
-    return jsonify(adverts)
+@app.route('/sendNumber', methods=['POST'])
+def sendNumber():
+    if not request.json:
+        abort(400)
+
+    stringNumber = request.json['number']
+    number = int(stringNumber)
+
+    print(encrypter.decrypt(number))
+    json = {
+        "status": "ok"
+    }
+
+    return jsonify(json)
+
 
 class Encrypter(object):
     def __init__(self):
@@ -181,5 +185,5 @@ encrypter = Encrypter()
 if __name__ == '__main__':
     conn = sqlite3.connect('carjunkstore.db', check_same_thread=False)
     c = conn.cursor()
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='192.168.0.107', debug=True)
     conn.close()
